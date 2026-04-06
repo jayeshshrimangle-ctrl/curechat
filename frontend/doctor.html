@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Find and book appointments with top doctors on CureChat AI.">
+  <title>Find Doctors | CureChat AI</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .doctor-page {
+      padding-top: 80px;
+      min-height: 100vh;
+    }
+
+    /* ---- Search Section ---- */
+    .doctor-search-section {
+      background: var(--bg-surface);
+      padding: 3rem 2rem;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .search-container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .search-container h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .search-container > p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .search-bar input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-bar select {
+      min-width: 200px;
+    }
+
+    /* ---- Doctor Grid ---- */
+    .doctor-grid-section {
+      padding: 3rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .doctor-count {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .doctor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .doctor-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.75rem;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .doctor-card:hover {
+      border-color: rgba(14, 165, 233, 0.3);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .doctor-card-header {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .doctor-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+
+    .doctor-info h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .doctor-spec {
+      color: var(--primary-light);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .doctor-qual {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .doctor-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .doctor-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .doctor-detail-icon {
+      font-size: 1rem;
+    }
+
+    .doctor-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .doctor-rating .stars {
+      color: #fbbf24;
+    }
+
+    .doctor-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .doctor-fee {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .doctor-fee span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* ---- Loading ---- */
+    .doctor-loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .doctor-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-bar {
+        flex-direction: column;
+      }
+
+      .search-container h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <img src="/images/logo.png" alt="CureChat AI" style="width:40px;height:40px;border-radius:12px;object-fit:contain;">
+      <div class="nav-brand-text"><span>Cure</span>Chat AI</div>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/chat">AI Chat</a></li>
+      <li><a href="/doctors" class="active">Doctors</a></li>
+      <li><a href="/appointment">Appointments</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+    </ul>
+    <div class="nav-auth" id="nav-auth"></div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+  </nav>
+
+  <div class="doctor-page">
+    <!-- Search Section -->
+    <section class="doctor-search-section">
+      <div class="search-container">
+        <h1>Find the Right <span class="text-gradient">Doctor</span></h1>
+        <p>Browse our network of qualified specialists and book your appointment</p>
+        <div class="search-bar">
+          <input type="text" class="form-input" id="search-input" placeholder="🔍 Search by name, hospital, location..." oninput="searchDoctors()">
+          <select class="form-input" id="spec-filter" onchange="searchDoctors()">
+            <option value="all">All Specializations</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Doctor Grid -->
+    <section class="doctor-grid-section">
+      <div class="doctor-count" id="doctor-count"></div>
+      <div class="doctor-grid" id="doctor-grid">
+        <div class="doctor-loading">
+          <div class="spinner" style="margin: 0 auto;"></div>
+          <p style="margin-top: 1rem; color: var(--text-muted);">Loading doctors...</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      © 2024 CureChat AI. All rights reserved.
+    </div>
+  </footer>
+
+  <script src="/js/auth.js"></script>
+  <script>
+    let allDoctors = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDoctors();
+      loadSpecializations();
+    });
+
+    async function loadDoctors() {
+      try {
+        const data = await apiRequest('/doctors');
+        allDoctors = data.doctors;
+        renderDoctors(allDoctors);
+      } catch (error) {
+        document.getElementById('doctor-grid').innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-state-icon">⚠️</div>
+            <h3>Failed to load doctors</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    async function loadSpecializations() {
+      try {
+        const data = await apiRequest('/doctors/specializations');
+        const select = document.getElementById('spec-filter');
+        data.specializations.forEach(spec => {
+          const option = document.createElement('option');
+          option.value = spec;
+          option.textContent = spec;
+          select.appendChild(option);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function searchDoctors() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const spec = document.getElementById('spec-filter').value;
+
+      let filtered = allDoctors;
+
+      if (spec !== 'all') {
+        filtered = filtered.filter(d => d.specialization.toLowerCase() === spec.toLowerCase());
+      }
+
+      if (search) {
+        filtered = filtered.filter(d =>
+          d.name.toLowerCase().includes(search) ||
+          d.hospital.toLowerCase().includes(search) ||
+          d.location.toLowerCase().includes(search) ||
+          d.specialization.toLowerCase().includes(search)
+        );
+      }
+
+      renderDoctors(filtered);
+    }
+
+    function renderDoctors(doctors) {
+      const grid = document.getElementById('doctor-grid');
+      const count = document.getElementById('doctor-count');
+      
+      count.textContent = `${doctors.length} doctor${doctors.length !== 1 ? 's' : ''} found`;
+
+      if (doctors.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-state-icon">🔍</div>
+            <h3>No doctors found</h3>
+            <p>Try adjusting your search or filters</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = doctors.map(doc => `
+        <div class="doctor-card">
+          <div class="doctor-card-header">
+            <div class="doctor-avatar">🩺</div>
+            <div class="doctor-info">
+              <h3>${doc.name}</h3>
+              <div class="doctor-spec">${doc.specialization}</div>
+              <div class="doctor-qual">${doc.qualification}</div>
+            </div>
+          </div>
+          <div class="doctor-details">
+            <div class="doctor-detail">
+              <span class="doctor-detail-icon">🏥</span>
+              ${doc.hospital}
+            </div>
+            <div class="doctor-detail">
+              <span class="doctor-detail-icon">📍</span>
+              ${doc.location}
+            </div>
+            <div class="doctor-detail">
+              <span class="doctor-detail-icon">📅</span>
+              ${doc.experience} yrs exp.
+            </div>
+            <div class="doctor-detail doctor-rating">
+              <span class="stars">★</span>
+              ${doc.rating}
+            </div>
+          </div>
+          <div class="doctor-card-footer">
+            <div class="doctor-fee">₹${doc.fee} <span>/ visit</span></div>
+            <a href="/appointment?doctor=${doc._id}" class="btn btn-primary btn-sm">Book Appointment</a>
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+✅ Connected to MongoDB
+🚀 Vectorax Healthcare server running on http://localhost:3000

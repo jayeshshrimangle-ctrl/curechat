@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book doctor appointments online with CureChat AI. Easy scheduling with top specialists.">
+  <title>Book Appointment | CureChat AI</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .appointment-page {
+      padding-top: 80px;
+      min-height: 100vh;
+    }
+
+    .appointment-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .appointment-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .appointment-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .appointment-header p {
+      color: var(--text-secondary);
+    }
+
+    .booking-form {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem;
+      backdrop-filter: blur(20px);
+    }
+
+    .booking-form h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .type-selector {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .type-option {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--bg-surface);
+    }
+
+    .type-option:hover {
+      border-color: rgba(14, 165, 233, 0.3);
+    }
+
+    .type-option.selected {
+      border-color: var(--primary);
+      background: rgba(14, 165, 233, 0.08);
+    }
+
+    .type-option-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .type-option h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .type-option p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Selected Doctor Card */
+    .selected-doctor {
+      background: rgba(14, 165, 233, 0.06);
+      border: 1px solid rgba(14, 165, 233, 0.15);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .selected-doctor-avatar {
+      width: 50px;
+      height: 50px;
+      background: var(--gradient-primary);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .selected-doctor-info h4 {
+      font-weight: 700;
+    }
+
+    .selected-doctor-info p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* My Appointments List */
+    .appointments-list {
+      margin-top: 3rem;
+    }
+
+    .appointments-list h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .appointment-item {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: var(--transition);
+    }
+
+    .appointment-item:hover {
+      border-color: rgba(14, 165, 233, 0.2);
+    }
+
+    .appt-doctor-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-primary);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .appt-info {
+      flex: 1;
+    }
+
+    .appt-info h4 {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .appt-info p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .appt-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .type-selector {
+        flex-direction: column;
+      }
+
+      .appointment-item {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .appt-actions {
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <img src="/images/logo.png" alt="CureChat AI" style="width:40px;height:40px;border-radius:12px;object-fit:contain;">
+      <div class="nav-brand-text"><span>Cure</span>Chat AI</div>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/chat">AI Chat</a></li>
+      <li><a href="/doctors">Doctors</a></li>
+      <li><a href="/appointment" class="active">Appointments</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+    </ul>
+    <div class="nav-auth" id="nav-auth"></div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+  </nav>
+
+  <div class="appointment-page">
+    <div class="appointment-container">
+      <div class="appointment-header">
+        <h1>Book an <span class="text-gradient">Appointment</span></h1>
+        <p>Schedule your visit with a doctor in just a few steps</p>
+      </div>
+
+      <!-- Selected Doctor -->
+      <div class="selected-doctor hidden" id="selected-doctor">
+        <div class="selected-doctor-avatar">🩺</div>
+        <div class="selected-doctor-info">
+          <h4 id="selected-doctor-name">-</h4>
+          <p id="selected-doctor-detail">-</p>
+        </div>
+      </div>
+
+      <!-- Booking Form -->
+      <div class="booking-form">
+        <h2>📋 Appointment Details</h2>
+
+        <div class="form-group" id="doctor-select-group">
+          <label class="form-label">Select Doctor</label>
+          <select class="form-input" id="doctor-select" onchange="onDoctorSelect()">
+            <option value="">Choose a doctor...</option>
+          </select>
+        </div>
+
+        <div class="type-selector">
+          <div class="type-option selected" data-type="online" onclick="selectType('online')">
+            <div class="type-option-icon">💻</div>
+            <h4>Online</h4>
+            <p>Video consultation</p>
+          </div>
+          <div class="type-option" data-type="in-person" onclick="selectType('in-person')">
+            <div class="type-option-icon">🏥</div>
+            <h4>In-Person</h4>
+            <p>Visit clinic</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" class="form-input" id="patient-name" placeholder="Enter your full name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-input" id="patient-email" placeholder="your@email.com" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone *</label>
+            <input type="tel" class="form-input" id="patient-phone" placeholder="+91 98765 43210" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred Date *</label>
+            <input type="date" class="form-input" id="appt-date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Preferred Time *</label>
+          <select class="form-input" id="appt-time">
+            <option value="">Select time slot...</option>
+            <option value="09:00 AM">09:00 AM</option>
+            <option value="10:00 AM">10:00 AM</option>
+            <option value="11:00 AM">11:00 AM</option>
+            <option value="02:00 PM">02:00 PM</option>
+            <option value="03:00 PM">03:00 PM</option>
+            <option value="04:00 PM">04:00 PM</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Describe Your Symptoms</label>
+          <textarea class="form-input" id="symptoms" placeholder="Briefly describe your symptoms or reason for visit..."></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-lg" style="width: 100%;" onclick="bookAppointment()">
+          📅 Book Appointment
+        </button>
+      </div>
+
+      <!-- My Appointments -->
+      <div class="appointments-list" id="appointments-list">
+        <h2>📋 My Appointments</h2>
+        <div id="my-appointments">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-bottom">© 2024 CureChat AI. All rights reserved.</div>
+  </footer>
+
+  <script src="/js/auth.js"></script>
+  <script>
+    let selectedType = 'online';
+    let doctors = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!requireAuth()) return;
+
+      // Set min date to today
+      document.getElementById('appt-date').min = new Date().toISOString().split('T')[0];
+
+      // Pre-fill user info
+      const user = getUser();
+      if (user) {
+        document.getElementById('patient-name').value = user.fullName || '';
+        document.getElementById('patient-email').value = user.email || '';
+        document.getElementById('patient-phone').value = user.phone || '';
+      }
+
+      await loadDoctorOptions();
+      loadMyAppointments();
+
+      // Check URL for pre-selected doctor
+      const params = new URLSearchParams(window.location.search);
+      const doctorId = params.get('doctor');
+      if (doctorId) {
+        document.getElementById('doctor-select').value = doctorId;
+        onDoctorSelect();
+      }
+    });
+
+    async function loadDoctorOptions() {
+      try {
+        const data = await apiRequest('/doctors');
+        doctors = data.doctors;
+        const select = document.getElementById('doctor-select');
+        doctors.forEach(doc => {
+          const option = document.createElement('option');
+          option.value = doc._id;
+          option.textContent = `${doc.name} - ${doc.specialization} (₹${doc.fee})`;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        showToast('Failed to load doctors', 'error');
+      }
+    }
+
+    function onDoctorSelect() {
+      const doctorId = document.getElementById('doctor-select').value;
+      const doc = doctors.find(d => d._id === doctorId);
+      const card = document.getElementById('selected-doctor');
+
+      if (doc) {
+        document.getElementById('selected-doctor-name').textContent = doc.name;
+        document.getElementById('selected-doctor-detail').textContent = `${doc.specialization} | ${doc.hospital} | ₹${doc.fee}`;
+        card.classList.remove('hidden');
+
+        // Update time slots based on doctor
+        const timeSelect = document.getElementById('appt-time');
+        timeSelect.innerHTML = '<option value="">Select time slot...</option>';
+        doc.availableSlots.forEach(slot => {
+          const opt = document.createElement('option');
+          opt.value = slot;
+          opt.textContent = slot;
+          timeSelect.appendChild(opt);
+        });
+      } else {
+        card.classList.add('hidden');
+      }
+    }
+
+    function selectType(type) {
+      selectedType = type;
+      document.querySelectorAll('.type-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.type === type);
+      });
+    }
+
+    async function bookAppointment() {
+      const doctorId = document.getElementById('doctor-select').value;
+      const patientName = document.getElementById('patient-name').value.trim();
+      const patientEmail = document.getElementById('patient-email').value.trim();
+      const patientPhone = document.getElementById('patient-phone').value.trim();
+      const date = document.getElementById('appt-date').value;
+      const time = document.getElementById('appt-time').value;
+      const symptoms = document.getElementById('symptoms').value.trim();
+
+      if (!doctorId || !patientName || !patientEmail || !patientPhone || !date || !time) {
+        showToast('Please fill all required fields', 'warning');
+        return;
+      }
+
+      try {
+        const data = await apiRequest('/appointments', {
+          method: 'POST',
+          body: JSON.stringify({
+            doctorId, patientName, patientEmail, patientPhone,
+            date, time, type: selectedType, symptoms
+          })
+        });
+
+        showToast('🎉 Appointment booked successfully!', 'success');
+        
+        // Reset form
+        document.getElementById('symptoms').value = '';
+        document.getElementById('appt-date').value = '';
+        document.getElementById('appt-time').value = '';
+        
+        loadMyAppointments();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    async function loadMyAppointments() {
+      try {
+        const data = await apiRequest('/appointments');
+        const container = document.getElementById('my-appointments');
+
+        if (data.appointments.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📅</div>
+              <h3>No appointments yet</h3>
+              <p>Book your first appointment above</p>
+            </div>
+          `;
+          return;
+        }
+
+        const statusBadges = {
+          pending: 'badge-warning',
+          confirmed: 'badge-success',
+          cancelled: 'badge-danger',
+          completed: 'badge-primary'
+        };
+
+        container.innerHTML = data.appointments.map(appt => `
+          <div class="appointment-item">
+            <div class="appt-doctor-avatar">🩺</div>
+            <div class="appt-info">
+              <h4>${appt.doctorId?.name || 'Doctor'}</h4>
+              <p>${appt.doctorId?.specialization || ''} · ${appt.date} at ${appt.time}</p>
+              <p>${appt.type === 'online' ? '💻 Online' : '🏥 In-Person'}</p>
+            </div>
+            <div class="appt-actions">
+              <span class="badge ${statusBadges[appt.status]}">${appt.status}</span>
+              ${appt.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="cancelAppointment('${appt._id}')">Cancel</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load appointments:', error);
+      }
+    }
+
+    async function cancelAppointment(id) {
+      if (!confirm('Are you sure you want to cancel this appointment?')) return;
+      
+      try {
+        await apiRequest(`/appointments/${id}/cancel`, { method: 'PUT' });
+        showToast('Appointment cancelled', 'success');
+        loadMyAppointments();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
